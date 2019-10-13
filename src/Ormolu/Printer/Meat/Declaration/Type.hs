@@ -14,15 +14,15 @@ import Ormolu.Printer.Meat.Type
 import RdrName (RdrName (..))
 import SrcLoc (Located)
 
-p_synDecl ::
+p_synDecl ∷
   -- | Type constructor
-  Located RdrName ->
+  Located RdrName →
   -- | Fixity
-  LexicalFixity ->
+  LexicalFixity →
   -- | Type variables
-  LHsQTyVars GhcPs ->
+  LHsQTyVars GhcPs →
   -- | RHS of type declaration
-  LHsType GhcPs ->
+  LHsType GhcPs →
   R ()
 p_synDecl name fixity tvars t = do
   txt "type"
@@ -30,7 +30,7 @@ p_synDecl name fixity tvars t = do
   let HsQTvs {..} = tvars
   switchLayout (getLoc name : map getLoc hsq_explicit) $ do
     p_infixDefHelper
-      (case fixity of Infix -> True; _ -> False)
+      (case fixity of Infix → True; _ → False)
       inci
       (p_rdrName name)
       (map (located' p_hsTyVarBndr) hsq_explicit)

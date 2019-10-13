@@ -16,17 +16,17 @@ import Ormolu.Parser.Pragma (Pragma)
 data ParseResult
   = ParseResult
       { -- | 'ParsedSource' from GHC
-        prParsedSource :: ParsedSource,
+        prParsedSource ∷ ParsedSource,
         -- | Ormolu-specfic representation of annotations
-        prAnns :: Anns,
+        prAnns ∷ Anns,
         -- | Comment stream
-        prCommentStream :: CommentStream,
+        prCommentStream ∷ CommentStream,
         -- | Extensions enabled in that module
-        prExtensions :: [Pragma]
+        prExtensions ∷ [Pragma]
       }
 
 -- | Pretty-print a 'ParseResult'.
-prettyPrintParseResult :: ParseResult -> String
+prettyPrintParseResult ∷ ParseResult → String
 prettyPrintParseResult ParseResult {..} =
   unlines
     [ "parse result:",

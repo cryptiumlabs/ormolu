@@ -17,19 +17,19 @@ import Ormolu.Printer.Meat.Common
 import Ormolu.Printer.Meat.Declaration.Signature
 import Ormolu.Utils
 
-p_foreignDecl :: ForeignDecl GhcPs -> R ()
+p_foreignDecl ∷ ForeignDecl GhcPs → R ()
 p_foreignDecl = \case
-  fd@ForeignImport {fd_fi} -> do
+  fd@ForeignImport {fd_fi} → do
     p_foreignImport fd_fi
     p_foreignTypeSig fd
-  fd@ForeignExport {fd_fe} -> do
+  fd@ForeignExport {fd_fe} → do
     p_foreignExport fd_fe
     p_foreignTypeSig fd
-  XForeignDecl {} -> notImplemented "XForeignDecl"
+  XForeignDecl {} → notImplemented "XForeignDecl"
 
 -- | Printer for the last part of an import\/export, which is function name
 -- and type signature.
-p_foreignTypeSig :: ForeignDecl GhcPs -> R ()
+p_foreignTypeSig ∷ ForeignDecl GhcPs → R ()
 p_foreignTypeSig fd = do
   breakpoint
   -- Switch into the layout of the signature, to allow us to pull name and
@@ -50,7 +50,7 @@ p_foreignTypeSig fd = do
 -- We also layout the identifier using the 'SourceText', because printing
 -- with the other two fields of 'CImport' is very complicated. See the
 -- 'Outputable' instance of 'ForeignImport' for details.
-p_foreignImport :: ForeignImport -> R ()
+p_foreignImport ∷ ForeignImport → R ()
 p_foreignImport (CImport cCallConv safety _ _ sourceText) = do
   txt "foreign import"
   space
@@ -59,14 +59,14 @@ p_foreignImport (CImport cCallConv safety _ _ sourceText) = do
   when (isGoodSrcSpan $ getLoc safety) (space >> atom safety)
   located sourceText p_sourceText
 
-p_foreignExport :: ForeignExport -> R ()
+p_foreignExport ∷ ForeignExport → R ()
 p_foreignExport (CExport (L loc (CExportStatic _ _ cCallConv)) sourceText) = do
   txt "foreign export"
   space
   located (L loc cCallConv) atom
   located sourceText p_sourceText
 
-p_sourceText :: SourceText -> R ()
+p_sourceText ∷ SourceText → R ()
 p_sourceText = \case
-  NoSourceText -> pure ()
-  SourceText s -> space >> txt (pack s)
+  NoSourceText → pure ()
+  SourceText s → space >> txt (pack s)

@@ -19,12 +19,12 @@ newtype Anns = Anns (Map RealSrcSpan [GHC.AnnKeywordId])
   deriving (Eq)
 
 -- | Empty 'Anns'.
-emptyAnns :: Anns
+emptyAnns ∷ Anns
 emptyAnns = Anns M.empty
 
 -- | Create 'Anns' from 'GHC.PState'.
-mkAnns ::
-  GHC.PState ->
+mkAnns ∷
+  GHC.PState →
   Anns
 mkAnns pstate =
   Anns $
@@ -32,15 +32,15 @@ mkAnns pstate =
   where
     f ((spn, kid), _) =
       case spn of
-        RealSrcSpan rspn -> Just (rspn, [kid])
-        UnhelpfulSpan _ -> Nothing
+        RealSrcSpan rspn → Just (rspn, [kid])
+        UnhelpfulSpan _ → Nothing
 
 -- | Lookup 'GHC.AnnKeywordId's corresponding to a given 'SrcSpan'.
-lookupAnns ::
+lookupAnns ∷
   -- | Span to lookup with
-  SrcSpan ->
+  SrcSpan →
   -- | Collection of annotations
-  Anns ->
+  Anns →
   [GHC.AnnKeywordId]
 lookupAnns (RealSrcSpan rspn) (Anns m) = M.findWithDefault [] rspn m
 lookupAnns (UnhelpfulSpan _) _ = []

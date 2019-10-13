@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards    #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -9,47 +9,47 @@ module Ormolu.Parser
   )
 where
 
-import qualified CmdLineParser               as GHC
-import           Control.Exception
-import           Control.Monad
-import           Control.Monad.IO.Class
-import           Data.List                   (foldl', isPrefixOf, (\\))
-import           Data.Maybe                  (catMaybes)
-import qualified DynFlags                    as GHC
-import qualified FastString                  as GHC
-import           GHC                         hiding (IE, parseModule, parser)
-import           GHC.LanguageExtensions.Type (Extension (..))
-import           GHC.Paths                   (libdir)
-import qualified HeaderInfo                  as GHC
-import qualified Lexer                       as GHC
-import           Ormolu.Config
-import           Ormolu.Exception
-import           Ormolu.Parser.Anns
-import           Ormolu.Parser.CommentStream
-import           Ormolu.Parser.Result
-import qualified Outputable                  as GHC
-import qualified Parser                      as GHC
-import qualified SrcLoc                      as GHC
-import qualified StringBuffer                as GHC
+import qualified CmdLineParser as GHC
+import Control.Exception
+import Control.Monad
+import Control.Monad.IO.Class
+import Data.List ((\\), foldl', isPrefixOf)
+import Data.Maybe (catMaybes)
+import qualified DynFlags as GHC
+import qualified FastString as GHC
+import GHC hiding (IE, parseModule, parser)
+import GHC.LanguageExtensions.Type (Extension (..))
+import GHC.Paths (libdir)
+import qualified HeaderInfo as GHC
+import qualified Lexer as GHC
+import Ormolu.Config
+import Ormolu.Exception
+import Ormolu.Parser.Anns
+import Ormolu.Parser.CommentStream
+import Ormolu.Parser.Result
+import qualified Outputable as GHC
+import qualified Parser as GHC
+import qualified SrcLoc as GHC
+import qualified StringBuffer as GHC
 
 -- | Parse a complete module from string.
-parseModule ::
-  MonadIO m =>
+parseModule ∷
+  MonadIO m ⇒
   -- | Ormolu configuration
-  Config ->
+  Config →
   -- | File name (only for source location annotations)
-  FilePath ->
+  FilePath →
   -- | Input for parser
-  String ->
+  String →
   m
     ( [GHC.Warn],
       Either (SrcSpan, String) ParseResult
     )
 parseModule Config {..} path input' = liftIO $ do
   let (input, extraComments) = stripLinePragmas path input'
-  (ws, dynFlags) <- ghcWrapper $ do
-    dynFlags0 <- initDynFlagsPure path input
-    (dynFlags1, _, ws) <-
+  (ws, dynFlags) ← ghcWrapper $ do
+    dynFlags0 ← initDynFlagsPure path input
+    (dynFlags1, _, ws) ←
       GHC.parseDynamicFilePragma
         dynFlags0
         (dynOptionToLocatedStr <$> cfgDynOptions)
@@ -60,9 +60,9 @@ parseModule Config {..} path input' = liftIO $ do
   when (GHC.xopt Cpp dynFlags && not cfgTolerateCpp) $
     throwIO (OrmoluCppEnabled path)
   let r = case runParser GHC.parseModule dynFlags path input of
-        GHC.PFailed _ ss m ->
+        GHC.PFailed _ ss m →
           Left (ss, GHC.showSDoc dynFlags m)
-        GHC.POk pstate pmod ->
+        GHC.POk pstate pmod →
           let (comments, exts) = mkCommentStream extraComments pstate
            in Right ParseResult
                 { prParsedSource = pmod,
@@ -74,7 +74,7 @@ parseModule Config {..} path input' = liftIO $ do
 
 -- | Extensions that are not enabled automatically and should be activated
 -- by user.
-manualExts :: [Extension]
+manualExts ∷ [Extension]
 manualExts =
   [ Arrows, -- steals proc
     Cpp, -- forbidden
@@ -108,48 +108,48 @@ manualExts =
 -- environment files. However this only works if there is no invocation of
 -- 'setSessionDynFlags' before calling 'initDynFlagsPure'. See GHC tickets
 -- #15513, #15541.
-initDynFlagsPure ::
-  GHC.GhcMonad m =>
+initDynFlagsPure ∷
+  GHC.GhcMonad m ⇒
   -- | Module path
-  FilePath ->
+  FilePath →
   -- | Module contents
-  String ->
+  String →
   -- | Dynamic flags for that module
   m GHC.DynFlags
 initDynFlagsPure fp input = do
   -- I was told we could get away with using the 'unsafeGlobalDynFlags'. as
   -- long as 'parseDynamicFilePragma' is impure there seems to be no reason
   -- to use it.
-  dflags0 <- setExts <$> GHC.getSessionDynFlags
+  dflags0 ← setExts <$> GHC.getSessionDynFlags
   let tokens = GHC.getOptions dflags0 (GHC.stringToStringBuffer input) fp
-  (dflags1, _, _) <- GHC.parseDynamicFilePragma dflags0 tokens
+  (dflags1, _, _) ← GHC.parseDynamicFilePragma dflags0 tokens
   -- Turn this on last to avoid T10942
   let dflags2 = dflags1 `GHC.gopt_set` GHC.Opt_KeepRawTokenStream
   -- Prevent parsing of .ghc.environment.* "package environment files"
-  (dflags3, _, _) <-
+  (dflags3, _, _) ←
     GHC.parseDynamicFlagsCmdLine
       dflags2
       [GHC.noLoc "-hide-all-packages"]
-  _ <- GHC.setSessionDynFlags dflags3
+  _ ← GHC.setSessionDynFlags dflags3
   return dflags3
 
 -- | Default runner of 'GHC.Ghc' action in 'IO'.
-ghcWrapper :: GHC.Ghc a -> IO a
+ghcWrapper ∷ GHC.Ghc a → IO a
 ghcWrapper act =
   let GHC.FlushOut flushOut = GHC.defaultFlushOut
    in GHC.runGhc (Just libdir) act
         `finally` flushOut
 
 -- | Run a 'GHC.P' computation.
-runParser ::
+runParser ∷
   -- | Computation to run
-  GHC.P a ->
+  GHC.P a →
   -- | Dynamic flags
-  GHC.DynFlags ->
+  GHC.DynFlags →
   -- | Module path
-  FilePath ->
+  FilePath →
   -- | Module contents
-  String ->
+  String →
   -- | Parse result
   GHC.ParseResult a
 runParser parser flags filename input = GHC.unP parser parseState
@@ -160,15 +160,15 @@ runParser parser flags filename input = GHC.unP parser parseState
 
 -- | Remove GHC style line pragams (@{-# LINE .. #-}@) and convert them into
 -- comments.
-stripLinePragmas :: FilePath -> String -> (String, [Located String])
+stripLinePragmas ∷ FilePath → String → (String, [Located String])
 stripLinePragmas path = unlines' . unzip . findLines path . lines
   where
     unlines' (a, b) = (unlines a, catMaybes b)
 
-findLines :: FilePath -> [String] -> [(String, Maybe (Located String))]
+findLines ∷ FilePath → [String] → [(String, Maybe (Located String))]
 findLines path = zipWith (checkLine path) [1 ..]
 
-checkLine :: FilePath -> Int -> String -> (String, Maybe (Located String))
+checkLine ∷ FilePath → Int → String → (String, Maybe (Located String))
 checkLine path line s
   | "{-# LINE" `isPrefixOf` s =
     let (pragma, res) = getPragma s
@@ -182,7 +182,7 @@ checkLine path line s
   where
     mkSrcLoc' = mkSrcLoc (GHC.mkFastString path) line
 
-getPragma :: String -> (String, String)
+getPragma ∷ String → (String, String)
 getPragma [] = error "Ormolu.Parser.getPragma: input must not be empty"
 getPragma s@(x : xs)
   | "#-}" `isPrefixOf` s = ("#-}", "   " ++ drop 3 s)
@@ -192,36 +192,37 @@ getPragma s@(x : xs)
 
 -- | Enable all language extensions that we think should be enabled by
 -- default for ease of use.
-setDefaultExts :: DynFlags -> DynFlags
+setDefaultExts ∷ DynFlags → DynFlags
 setDefaultExts flags = foldl' GHC.xopt_set flags autoExts
   where
     autoExts = allExts \\ manualExts
     allExts = [minBound .. maxBound]
 
-setExts :: DynFlags -> DynFlags
+setExts ∷ DynFlags → DynFlags
 setExts flags = foldl' GHC.xopt_set flags exts
-  where exts = [
-          OverloadedStrings,
-          RankNTypes,
-          ExplicitForAll,
-          LambdaCase,
-          GADTs,
-          ScopedTypeVariables,
-          DeriveGeneric,
-          DerivingStrategies,
-          FlexibleContexts,
-          FlexibleInstances,
-          DataKinds,
-          GeneralizedNewtypeDeriving,
-          DefaultSignatures,
-          QuasiQuotes,
-          TypeOperators,
-          MultiParamTypeClasses,
-          MultiWayIf,
-          TypeInType,
-          DerivingVia,
-          TypeApplications,
-          UnicodeSyntax
-          ]
+  where
+    exts =
+      [ OverloadedStrings,
+        RankNTypes,
+        ExplicitForAll,
+        LambdaCase,
+        GADTs,
+        ScopedTypeVariables,
+        DeriveGeneric,
+        DerivingStrategies,
+        FlexibleContexts,
+        FlexibleInstances,
+        DataKinds,
+        GeneralizedNewtypeDeriving,
+        DefaultSignatures,
+        QuasiQuotes,
+        TypeOperators,
+        MultiParamTypeClasses,
+        MultiWayIf,
+        TypeInType,
+        DerivingVia,
+        TypeApplications,
+        UnicodeSyntax
+      ]
 
 deriving instance Bounded Extension

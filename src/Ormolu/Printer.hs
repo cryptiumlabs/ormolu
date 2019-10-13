@@ -15,9 +15,9 @@ import Ormolu.Printer.Meat.Module
 import Ormolu.Printer.SpanStream
 
 -- | Render a module.
-printModule ::
+printModule ∷
   -- | Result of parsing
-  ParseResult ->
+  ParseResult →
   -- | Resulting rendition
   Text
 printModule ParseResult {..} =

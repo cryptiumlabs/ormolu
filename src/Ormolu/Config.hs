@@ -17,22 +17,22 @@ import qualified SrcLoc as GHC
 data Config
   = Config
       { -- | Dynamic options to pass to GHC parser
-        cfgDynOptions :: ![DynOption],
+        cfgDynOptions ∷ ![DynOption],
         -- | Do formatting faster but without automatic detection of defects
-        cfgUnsafe :: !Bool,
+        cfgUnsafe ∷ !Bool,
         -- | Output information useful for debugging
-        cfgDebug :: !Bool,
+        cfgDebug ∷ !Bool,
         -- | Do not fail if CPP pragma is present (still doesn't handle CPP but
         -- useful for formatting of files that enable the extension without
         -- actually containing CPP macros)
-        cfgTolerateCpp :: !Bool,
+        cfgTolerateCpp ∷ !Bool,
         -- | Checks if re-formatting the result is idempotent.
-        cfgCheckIdempotency :: !Bool
+        cfgCheckIdempotency ∷ !Bool
       }
   deriving (Eq, Show)
 
 -- | Default 'Config'.
-defaultConfig :: Config
+defaultConfig ∷ Config
 defaultConfig = Config
   { cfgDynOptions = [],
     cfgUnsafe = False,
@@ -44,10 +44,10 @@ defaultConfig = Config
 -- | A wrapper for dynamic options.
 newtype DynOption
   = DynOption
-      { unDynOption :: String
+      { unDynOption ∷ String
       }
   deriving (Eq, Ord, Show)
 
 -- | Convert 'DynOption' to @'GHC.Located' 'String'@.
-dynOptionToLocatedStr :: DynOption -> GHC.Located String
+dynOptionToLocatedStr ∷ DynOption → GHC.Located String
 dynOptionToLocatedStr (DynOption o) = GHC.L GHC.noSrcSpan o

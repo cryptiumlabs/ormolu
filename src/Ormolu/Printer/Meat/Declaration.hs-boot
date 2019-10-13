@@ -8,6 +8,6 @@ import GHC
 import Ormolu.Printer.Combinators
 import Ormolu.Printer.Meat.Common
 
-p_hsDecls :: FamilyStyle -> [LHsDecl GhcPs] -> R ()
+p_hsDecls ∷ FamilyStyle → [LHsDecl GhcPs] → R ()
 
-hasSeparatedDecls :: [LHsDecl GhcPs] -> Bool
+hasSeparatedDecls ∷ [LHsDecl GhcPs] → Bool

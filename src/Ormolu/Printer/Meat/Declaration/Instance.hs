@@ -26,7 +26,7 @@ import Ormolu.Printer.Meat.Declaration.TypeFamily
 import Ormolu.Printer.Meat.Type
 import Ormolu.Utils
 
-p_standaloneDerivDecl :: DerivDecl GhcPs -> R ()
+p_standaloneDerivDecl ∷ DerivDecl GhcPs → R ()
 p_standaloneDerivDecl DerivDecl {..} = do
   let typesAfterInstance = located (hsib_body (hswc_body deriv_type)) p_hsType
       instTypes toIndent = inci $ do
@@ -39,34 +39,34 @@ p_standaloneDerivDecl DerivDecl {..} = do
   txt "deriving"
   space
   case deriv_strategy of
-    Nothing -> do
+    Nothing → do
       instTypes False
-    Just (L _ a) -> case a of
-      StockStrategy -> do
+    Just (L _ a) → case a of
+      StockStrategy → do
         txt "stock "
         instTypes False
-      AnyclassStrategy -> do
+      AnyclassStrategy → do
         txt "anyclass "
         instTypes False
-      NewtypeStrategy -> do
+      NewtypeStrategy → do
         txt "newtype "
         instTypes False
-      ViaStrategy HsIB {..} -> do
+      ViaStrategy HsIB {..} → do
         txt "via"
         breakpoint
         inci (located hsib_body p_hsType)
         breakpoint
         instTypes True
-      ViaStrategy (XHsImplicitBndrs NoExt) ->
+      ViaStrategy (XHsImplicitBndrs NoExt) →
         notImplemented "XHsImplicitBndrs"
 p_standaloneDerivDecl (XDerivDecl _) = notImplemented "XDerivDecl"
 
-p_clsInstDecl :: ClsInstDecl GhcPs -> R ()
+p_clsInstDecl ∷ ClsInstDecl GhcPs → R ()
 p_clsInstDecl = \case
-  ClsInstDecl {..} -> do
+  ClsInstDecl {..} → do
     txt "instance"
     case cid_poly_ty of
-      HsIB {..} -> do
+      HsIB {..} → do
         -- GHC's AST does not necessarily store each kind of element in source
         -- location order. This happens because different declarations are stored in
         -- different lists. Consequently, to get all the declarations in proper
@@ -84,7 +84,7 @@ p_clsInstDecl = \case
             allDecls =
               snd
                 <$> sortBy (comparing fst) (sigs <> vals <> tyFamInsts <> dataFamInsts)
-        located hsib_body $ \x -> do
+        located hsib_body $ \x → do
           breakpoint
           inci $ do
             match_overlap_mode cid_overlap_mode breakpoint
@@ -100,38 +100,38 @@ p_clsInstDecl = \case
             -- declarations
             when (hasSeparatedDecls allDecls) breakpoint'
             dontUseBraces $ p_hsDecls Associated allDecls
-      XHsImplicitBndrs NoExt -> notImplemented "XHsImplicitBndrs"
-  XClsInstDecl NoExt -> notImplemented "XClsInstDecl"
+      XHsImplicitBndrs NoExt → notImplemented "XHsImplicitBndrs"
+  XClsInstDecl NoExt → notImplemented "XClsInstDecl"
 
-p_tyFamInstDecl :: FamilyStyle -> TyFamInstDecl GhcPs -> R ()
+p_tyFamInstDecl ∷ FamilyStyle → TyFamInstDecl GhcPs → R ()
 p_tyFamInstDecl style = \case
-  TyFamInstDecl {..} -> do
+  TyFamInstDecl {..} → do
     txt $ case style of
-      Associated -> "type"
-      Free -> "type instance"
+      Associated → "type"
+      Free → "type instance"
     breakpoint
     inci (p_tyFamInstEqn tfid_eqn)
 
-p_dataFamInstDecl :: FamilyStyle -> DataFamInstDecl GhcPs -> R ()
+p_dataFamInstDecl ∷ FamilyStyle → DataFamInstDecl GhcPs → R ()
 p_dataFamInstDecl style = \case
-  DataFamInstDecl {..} -> do
+  DataFamInstDecl {..} → do
     let HsIB {..} = dfid_eqn
         FamEqn {..} = hsib_body
     p_dataDecl style feqn_tycon feqn_pats feqn_fixity feqn_rhs
 
-match_overlap_mode :: Maybe (Located OverlapMode) -> R () -> R ()
+match_overlap_mode ∷ Maybe (Located OverlapMode) → R () → R ()
 match_overlap_mode overlap_mode layoutStrategy =
   case unLoc <$> overlap_mode of
-    Just Overlappable {} -> do
+    Just Overlappable {} → do
       txt "{-# OVERLAPPABLE #-}"
       layoutStrategy
-    Just Overlapping {} -> do
+    Just Overlapping {} → do
       txt "{-# OVERLAPPING #-}"
       layoutStrategy
-    Just Overlaps {} -> do
+    Just Overlaps {} → do
       txt "{-# OVERLAPS #-}"
       layoutStrategy
-    Just Incoherent {} -> do
+    Just Incoherent {} → do
       txt "{-# INCOHERENT #-}"
       layoutStrategy
-    _ -> pure ()
+    _ → pure ()

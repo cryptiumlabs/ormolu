@@ -30,40 +30,40 @@ data Pragma
 
 -- | Extract a pragma from a comment if possible, or return 'Nothing'
 -- otherwise.
-parsePragma ::
+parsePragma ∷
   -- | Comment to try to parse
-  String ->
+  String →
   Maybe Pragma
 parsePragma input = do
-  inputNoPrefix <- stripPrefix "{-#" input
+  inputNoPrefix ← stripPrefix "{-#" input
   guard ("#-}" `isSuffixOf` input)
   let contents = take (length inputNoPrefix - 3) inputNoPrefix
       (pragmaName, cs) = (break isSpace . dropWhile isSpace) contents
   case toLower <$> pragmaName of
-    "language" -> PragmaLanguage <$> parseExtensions cs
-    "options_ghc" -> Just $ PragmaOptionsGHC (trimSpaces cs)
-    "options_haddock" -> Just $ PragmaOptionsHaddock (trimSpaces cs)
-    _ -> Nothing
+    "language" → PragmaLanguage <$> parseExtensions cs
+    "options_ghc" → Just $ PragmaOptionsGHC (trimSpaces cs)
+    "options_haddock" → Just $ PragmaOptionsHaddock (trimSpaces cs)
+    _ → Nothing
   where
-    trimSpaces :: String -> String
+    trimSpaces ∷ String → String
     trimSpaces = dropWhileEnd isSpace . dropWhile isSpace
 
 -- | Assuming the input consists of a series of tokens from a language
 -- pragma, return the set of enabled extensions.
-parseExtensions :: String -> Maybe [String]
+parseExtensions ∷ String → Maybe [String]
 parseExtensions str = tokenize str >>= go
   where
     go = \case
-      (L.ITconid ext : []) -> return [unpackFS ext]
-      (L.ITconid ext : L.ITcomma : xs) -> (unpackFS ext :) <$> go xs
-      _ -> Nothing
+      (L.ITconid ext : []) → return [unpackFS ext]
+      (L.ITconid ext : L.ITcomma : xs) → (unpackFS ext :) <$> go xs
+      _ → Nothing
 
 -- | Tokenize a given input using GHC's lexer.
-tokenize :: String -> Maybe [L.Token]
+tokenize ∷ String → Maybe [L.Token]
 tokenize input =
   case L.unP pLexer parseState of
-    L.PFailed {} -> Nothing
-    L.POk _ x -> Just x
+    L.PFailed {} → Nothing
+    L.POk _ x → Just x
   where
     location = mkRealSrcLoc (mkFastString "") 1 1
     buffer = stringToStringBuffer input
@@ -76,11 +76,11 @@ tokenize input =
       }
 
 -- | Haskell lexer.
-pLexer :: L.P [L.Token]
+pLexer ∷ L.P [L.Token]
 pLexer = go
   where
     go = do
-      r <- L.lexer False return
+      r ← L.lexer False return
       case unLoc r of
-        L.ITeof -> return []
-        x -> (x :) <$> go
+        L.ITeof → return []
+        x → (x :) <$> go

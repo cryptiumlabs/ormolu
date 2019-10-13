@@ -41,11 +41,11 @@ newtype Comment = Comment (NonEmpty String)
 -- | Create 'CommentStream' from 'GHC.PState'. We also create a 'Set' of
 -- extensions here, which is not sorted in any way. The pragma comment are
 -- removed from the 'CommentStream'.
-mkCommentStream ::
+mkCommentStream ∷
   -- | Extra comments to include
-  [Located String] ->
+  [Located String] →
   -- | Parser state to use for comment extraction
-  GHC.PState ->
+  GHC.PState →
   -- | Comment stream and a set of extracted pragmas
   (CommentStream, [Pragma])
 mkCommentStream extraComments pstate =
@@ -68,15 +68,15 @@ mkCommentStream extraComments pstate =
 
 -- | Test whether a 'Comment' looks like a Haddock following a definition,
 -- i.e. something starting with @-- ^@.
-isPrevHaddock :: Comment -> Bool
+isPrevHaddock ∷ Comment → Bool
 isPrevHaddock (Comment (x :| _)) = "-- ^" `isPrefixOf` x
 
 -- | Is this comment multiline-style?
-isMultilineComment :: Comment -> Bool
+isMultilineComment ∷ Comment → Bool
 isMultilineComment (Comment (x :| _)) = "{-" `isPrefixOf` x
 
 -- | Pretty-print a 'CommentStream'.
-showCommentStream :: CommentStream -> String
+showCommentStream ∷ CommentStream → String
 showCommentStream (CommentStream xs) =
   unlines $
     showComment <$> xs
@@ -89,13 +89,13 @@ showCommentStream (CommentStream xs) =
 -- | Normalize comment string. Sometimes one multi-line comment is turned
 -- into several lines for subsequent outputting with correct indentation for
 -- each line.
-mkComment :: RealLocated String -> RealLocated Comment
+mkComment ∷ RealLocated String → RealLocated Comment
 mkComment (L l s) =
   L l . Comment . fmap dropTrailing $
     if "{-" `isPrefixOf` s
       then case NE.nonEmpty (lines s) of
-        Nothing -> s :| []
-        Just (x :| xs) ->
+        Nothing → s :| []
+        Just (x :| xs) →
           let getIndent y =
                 if all isSpace y
                   then startIndent
@@ -108,31 +108,31 @@ mkComment (L l s) =
     startIndent = srcSpanStartCol l - 1
 
 -- | Get a 'String' from 'GHC.AnnotationComment'.
-unAnnotationComment :: GHC.AnnotationComment -> Maybe String
+unAnnotationComment ∷ GHC.AnnotationComment → Maybe String
 unAnnotationComment = \case
-  GHC.AnnDocCommentNext _ -> Nothing -- @-- |@
-  GHC.AnnDocCommentPrev _ -> Nothing -- @-- ^@
-  GHC.AnnDocCommentNamed _ -> Nothing -- @-- $@
-  GHC.AnnDocSection _ _ -> Nothing -- @-- *@
-  GHC.AnnDocOptions s -> Just s
-  GHC.AnnLineComment s -> Just s
-  GHC.AnnBlockComment s -> Just s
+  GHC.AnnDocCommentNext _ → Nothing -- @-- |@
+  GHC.AnnDocCommentPrev _ → Nothing -- @-- ^@
+  GHC.AnnDocCommentNamed _ → Nothing -- @-- $@
+  GHC.AnnDocSection _ _ → Nothing -- @-- *@
+  GHC.AnnDocOptions s → Just s
+  GHC.AnnLineComment s → Just s
+  GHC.AnnBlockComment s → Just s
 
-liftMaybe :: Located (Maybe a) -> Maybe (Located a)
+liftMaybe ∷ Located (Maybe a) → Maybe (Located a)
 liftMaybe = \case
-  L _ Nothing -> Nothing
-  L l (Just a) -> Just (L l a)
+  L _ Nothing → Nothing
+  L l (Just a) → Just (L l a)
 
-toRealSpan :: Located a -> Maybe (RealLocated a)
+toRealSpan ∷ Located a → Maybe (RealLocated a)
 toRealSpan (L (RealSrcSpan l) a) = Just (L l a)
 toRealSpan _ = Nothing
 
 -- | If a given comment is a pragma, return it in parsed form in 'Right'.
 -- Otherwise return the original comment unchanged.
-partitionComments ::
-  RealLocated String ->
+partitionComments ∷
+  RealLocated String →
   Either (RealLocated String) Pragma
 partitionComments input =
   case parsePragma (unLoc input) of
-    Nothing -> Left input
-    Just pragma -> Right pragma
+    Nothing → Left input
+    Just pragma → Right pragma

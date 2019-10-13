@@ -24,10 +24,10 @@ newtype SpanStream = SpanStream [RealSrcSpan]
 
 -- | Create 'SpanStream' from a data structure containing \"located\"
 -- elements.
-mkSpanStream ::
-  Data a =>
+mkSpanStream ∷
+  Data a ⇒
   -- | Data structure to inspect (AST)
-  a ->
+  a →
   SpanStream
 mkSpanStream a =
   SpanStream
@@ -35,12 +35,12 @@ mkSpanStream a =
     . D.toList
     $ everything mappend (const mempty `ext2Q` queryLocated) a
   where
-    queryLocated ::
-      (Data e0, Data e1) =>
-      GenLocated e0 e1 ->
+    queryLocated ∷
+      (Data e0, Data e1) ⇒
+      GenLocated e0 e1 →
       DList RealSrcSpan
     queryLocated (L mspn _) =
-      case cast mspn :: Maybe SrcSpan of
-        Nothing -> mempty
-        Just (UnhelpfulSpan _) -> mempty
-        Just (RealSrcSpan spn) -> D.singleton spn
+      case cast mspn ∷ Maybe SrcSpan of
+        Nothing → mempty
+        Just (UnhelpfulSpan _) → mempty
+        Just (RealSrcSpan spn) → D.singleton spn

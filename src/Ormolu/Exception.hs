@@ -31,26 +31,26 @@ data OrmoluException
 
 instance Exception OrmoluException where
   displayException = \case
-    OrmoluCppEnabled path ->
+    OrmoluCppEnabled path →
       unlines
         [ "CPP is not supported:",
           withIndent path
         ]
-    OrmoluParsingFailed s e ->
+    OrmoluParsingFailed s e →
       showParsingErr "Parsing of source code failed:" s [e]
-    OrmoluOutputParsingFailed s e ->
+    OrmoluOutputParsingFailed s e →
       showParsingErr "Parsing of formatted code failed:" s [e]
         ++ "Please, consider reporting the bug.\n"
-    OrmoluASTDiffers path ss ->
+    OrmoluASTDiffers path ss →
       unlines $
         [ "AST of input and AST of formatted code differ."
         ]
-          ++ ( fmap withIndent $ case fmap (\s -> "at " ++ showOutputable s) ss of
-                 [] -> ["in " ++ path]
-                 xs -> xs
+          ++ ( fmap withIndent $ case fmap (\s → "at " ++ showOutputable s) ss of
+                 [] → ["in " ++ path]
+                 xs → xs
              )
           ++ ["Please, consider reporting the bug."]
-    OrmoluNonIdempotentOutput loc left right ->
+    OrmoluNonIdempotentOutput loc left right →
       showParsingErr
         "Formatting is not idempotent:"
         loc
@@ -59,29 +59,29 @@ instance Exception OrmoluException where
 
 -- | Inside this wrapper 'OrmoluException' will be caught and displayed
 -- nicely using 'displayException'.
-withPrettyOrmoluExceptions ::
+withPrettyOrmoluExceptions ∷
   -- | Action that may throw the exception
-  IO a ->
+  IO a →
   IO a
 withPrettyOrmoluExceptions m = m `catch` h
   where
-    h :: OrmoluException -> IO a
+    h ∷ OrmoluException → IO a
     h e = do
       hPutStrLn stderr (displayException e)
       exitWith . ExitFailure $
         case e of
           -- Error code 1 is for `error` or `notImplemented`
-          OrmoluCppEnabled _ -> 2
-          OrmoluParsingFailed _ _ -> 3
-          OrmoluOutputParsingFailed _ _ -> 4
-          OrmoluASTDiffers _ _ -> 5
-          OrmoluNonIdempotentOutput _ _ _ -> 6
+          OrmoluCppEnabled _ → 2
+          OrmoluParsingFailed _ _ → 3
+          OrmoluOutputParsingFailed _ _ → 4
+          OrmoluASTDiffers _ _ → 5
+          OrmoluNonIdempotentOutput _ _ _ → 6
 
 ----------------------------------------------------------------------------
 -- Helpers
 
 -- | Show a parse error.
-showParsingErr :: GHC.Outputable a => String -> a -> [String] -> String
+showParsingErr ∷ GHC.Outputable a ⇒ String → a → [String] → String
 showParsingErr msg spn err =
   unlines $
     [ msg,
@@ -90,5 +90,5 @@ showParsingErr msg spn err =
       ++ map withIndent err
 
 -- | Indent with 2 spaces for readability.
-withIndent :: String -> String
+withIndent ∷ String → String
 withIndent txt = "  " ++ txt

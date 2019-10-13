@@ -21,28 +21,28 @@ import qualified Outputable as GHC
 import SrcLoc
 
 -- | Combine all source spans from the given list.
-combineSrcSpans' :: NonEmpty SrcSpan -> SrcSpan
+combineSrcSpans' ∷ NonEmpty SrcSpan → SrcSpan
 combineSrcSpans' (x :| xs) = foldr combineSrcSpans x xs
 
 -- | Return 'True' if given element of AST is module.
-isModule :: Data a => a -> Bool
+isModule ∷ Data a ⇒ a → Bool
 isModule x = showConstr (toConstr x) == "HsModule"
 
 -- | Placeholder for things that are not yet implemented.
-notImplemented :: String -> a
+notImplemented ∷ String → a
 notImplemented msg = error $ "not implemented yet: " ++ msg
 
 -- | Pretty-print an 'GHC.Outputable' thing.
-showOutputable :: GHC.Outputable o => o -> String
+showOutputable ∷ GHC.Outputable o ⇒ o → String
 showOutputable = GHC.showSDocUnsafe . GHC.ppr
 
 -- | Split and normalize a doc string. The result is a list of lines that
 -- make up the comment.
-splitDocString :: HsDocString -> [Text]
+splitDocString ∷ HsDocString → [Text]
 splitDocString docStr =
   case r of
-    [] -> [""]
-    _ -> r
+    [] → [""]
+    _ → r
   where
     r =
       fmap escapeLeadingDollar
@@ -56,15 +56,15 @@ splitDocString docStr =
     -- syntax @-- $name@ somehow).
     escapeLeadingDollar txt =
       case T.uncons txt of
-        Just ('$', _) -> T.cons '\\' txt
-        _ -> txt
+        Just ('$', _) → T.cons '\\' txt
+        _ → txt
     dropPaddingSpace xs =
       case dropWhile T.null xs of
-        [] -> []
-        (x : _) ->
+        [] → []
+        (x : _) →
           let leadingSpace txt = case T.uncons txt of
-                Just (' ', _) -> True
-                _ -> False
+                Just (' ', _) → True
+                _ → False
               dropSpace txt =
                 if leadingSpace txt
                   then T.drop 1 txt

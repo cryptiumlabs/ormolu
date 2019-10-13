@@ -120,6 +120,7 @@ library
   else
     ghc-options:      -O2 -Wall
   default-language:   Haskell2010
+  default-extensions: UnicodeSyntax
 
 test-suite tests
   main-is:            Spec.hs
@@ -143,6 +144,7 @@ test-suite tests
   else
     ghc-options:      -O2 -Wall
   default-language:   Haskell2010
+  default-extensions: UnicodeSyntax
 
 executable ormolu
   main-is:            Main.hs
@@ -163,3 +165,4 @@ executable ormolu
   else
     ghc-options:      -O2 -Wall
   default-language:   Haskell2010
+  default-extensions: UnicodeSyntax

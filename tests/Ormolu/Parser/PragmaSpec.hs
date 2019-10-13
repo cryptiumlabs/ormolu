@@ -3,7 +3,7 @@ module Ormolu.Parser.PragmaSpec (spec) where
 import Ormolu.Parser.Pragma
 import Test.Hspec
 
-spec :: Spec
+spec ∷ Spec
 spec = do
   describe "parsePragma" $ do
     stdTest "{-# LANGUAGE Foo #-}" (Just (PragmaLanguage ["Foo"]))
@@ -20,7 +20,7 @@ spec = do
     stdTest "{-# OPTIONS_GHC foo bar baz  #-}" (Just $ PragmaOptionsGHC "foo bar baz")
     stdTest "{-#OPTIONS_HADDOCK foo, bar, baz  #-}" (Just $ PragmaOptionsHaddock "foo, bar, baz")
 
-stdTest :: String -> Maybe Pragma -> Spec
+stdTest ∷ String → Maybe Pragma → Spec
 stdTest input result =
   it input $
     parsePragma input `shouldBe` result

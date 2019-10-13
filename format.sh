@@ -1,9 +1,8 @@
-#!/usr/bin/env nix-shell
-#!nix-shell -p "(import ./default.nix {}).ormolu" -i bash --pure
-#
 # Format Ormolu using current version of Ormolu.
 
-set -e
+set -xe
+
+stack install
 
 export LANG="C.UTF-8"
 

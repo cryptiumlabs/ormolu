@@ -20,28 +20,28 @@ import Ormolu.Printer.Meat.Declaration.Warning
 import Ormolu.Printer.Meat.ImportExport
 import Ormolu.Printer.Meat.Pragma
 
-p_hsModule :: [Pragma] -> ParsedSource -> R ()
+p_hsModule ∷ [Pragma] → ParsedSource → R ()
 p_hsModule pragmas (L moduleSpan HsModule {..}) = do
   -- NOTE If span of exports in multiline, the whole thing is multiline.
   -- This is especially important because span of module itself always seems
   -- to have length zero, so it's not reliable for layout selection.
-  let exportSpans = maybe [] (\(L s _) -> [s]) hsmodExports
-      deprecSpan = maybe [] (\(L s _) -> [s]) hsmodDeprecMessage
+  let exportSpans = maybe [] (\(L s _) → [s]) hsmodExports
+      deprecSpan = maybe [] (\(L s _) → [s]) hsmodDeprecMessage
       spans' = exportSpans ++ deprecSpan ++ [moduleSpan]
   switchLayout spans' $ do
     p_pragmas pragmas
     newline
     forM_ hsmodHaddockModHeader (p_hsDocString Pipe True)
     case hsmodName of
-      Nothing -> return ()
-      Just hsmodName' -> do
+      Nothing → return ()
+      Just hsmodName' → do
         located hsmodName' p_hsmodName
-        forM_ hsmodDeprecMessage $ \w -> do
+        forM_ hsmodDeprecMessage $ \w → do
           breakpoint
           located' p_moduleWarning w
         case hsmodExports of
-          Nothing -> return ()
-          Just hsmodExports' -> do
+          Nothing → return ()
+          Just hsmodExports' → do
             breakpoint
             inci (p_hsmodExports (unLoc hsmodExports'))
         breakpoint

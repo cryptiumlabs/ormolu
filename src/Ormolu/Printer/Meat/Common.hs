@@ -33,28 +33,28 @@ data FamilyStyle
   | -- | Top-level declarations
     Free
 
-p_hsmodName :: ModuleName -> R ()
+p_hsmodName ∷ ModuleName → R ()
 p_hsmodName mname = do
   txt "module"
   space
   atom mname
 
-p_ieWrappedName :: IEWrappedName RdrName -> R ()
+p_ieWrappedName ∷ IEWrappedName RdrName → R ()
 p_ieWrappedName = \case
-  IEName x -> p_rdrName x
-  IEPattern x -> do
+  IEName x → p_rdrName x
+  IEPattern x → do
     txt "pattern"
     space
     p_rdrName x
-  IEType x -> do
+  IEType x → do
     txt "type"
     space
     p_rdrName x
 
 -- | Render a @'Located' 'RdrName'@.
-p_rdrName :: Located RdrName -> R ()
-p_rdrName l@(L spn _) = located l $ \x -> do
-  ids <- getAnns spn
+p_rdrName ∷ Located RdrName → R ()
+p_rdrName l@(L spn _) = located l $ \x → do
+  ids ← getAnns spn
   let backticksWrapper =
         if AnnBackquote `elem` ids
           then backticks
@@ -65,17 +65,17 @@ p_rdrName l@(L spn _) = located l $ \x -> do
           else id
       singleQuoteWrapper =
         if AnnSimpleQuote `elem` ids
-          then \y -> do
+          then \y → do
             txt "'"
             y
           else id
       m =
         case x of
-          Unqual occName ->
+          Unqual occName →
             atom occName
-          Qual mname occName ->
+          Qual mname occName →
             p_qualName mname occName
-          Orig _ occName ->
+          Orig _ occName →
             -- NOTE This is used when GHC generates code that will be fed
             -- into the renamer (e.g. from deriving clauses), but where we
             -- want to say that something comes from given module which is
@@ -84,7 +84,7 @@ p_rdrName l@(L spn _) = located l $ \x -> do
             -- My current understanding is that the provided module name
             -- serves no purpose for us and can be safely ignored.
             atom occName
-          Exact name ->
+          Exact name →
             atom name
       m' = backticksWrapper (singleQuoteWrapper m)
   if doesNotNeedExtraParens x
@@ -95,37 +95,37 @@ p_rdrName l@(L spn _) = located l $ \x -> do
 -- to detect e.g. tuples for which annotations will indicate parentheses,
 -- but the parentheses are already part of the symbol, so no extra layer of
 -- parentheses should be added. It also detects the [] literal.
-doesNotNeedExtraParens :: RdrName -> Bool
+doesNotNeedExtraParens ∷ RdrName → Bool
 doesNotNeedExtraParens = \case
-  Exact name ->
+  Exact name →
     let s = nameStableString name
      in -- NOTE I'm not sure this "stable string" is stable enough, but it looks
         -- like this is the most robust way to tell if we're looking at exactly
         -- this piece of built-in syntax.
         ("$ghc-prim$GHC.Tuple$" `isPrefixOf` s)
           || ("$ghc-prim$GHC.Types$[]" `isPrefixOf` s)
-  _ -> False
+  _ → False
 
-p_qualName :: ModuleName -> OccName -> R ()
+p_qualName ∷ ModuleName → OccName → R ()
 p_qualName mname occName = do
   atom mname
   txt "."
   atom occName
 
 -- | A helper for formatting infix constructions in lhs of definitions.
-p_infixDefHelper ::
+p_infixDefHelper ∷
   -- | Whether to format in infix style
-  Bool ->
+  Bool →
   -- | Indentation-bumping wrapper
-  (R () -> R ()) ->
+  (R () → R ()) →
   -- | How to print the operator\/name
-  R () ->
+  R () →
   -- | How to print the arguments
-  [R ()] ->
+  [R ()] →
   R ()
 p_infixDefHelper isInfix inci' name args =
   case (isInfix, args) of
-    (True, p0 : p1 : ps) -> do
+    (True, p0 : p1 : ps) → do
       let parens' =
             if null ps
               then id
@@ -140,43 +140,43 @@ p_infixDefHelper isInfix inci' name args =
       unless (null ps) . inci' $ do
         breakpoint
         sitcc (sep breakpoint sitcc ps)
-    (_, ps) -> do
+    (_, ps) → do
       name
       unless (null ps) $ do
         breakpoint
         inci' $ sitcc (sep breakpoint sitcc args)
 
 -- | Print a Haddock.
-p_hsDocString ::
+p_hsDocString ∷
   -- | Haddock style
-  HaddockStyle ->
+  HaddockStyle →
   -- | Finish the doc string with a newline
-  Bool ->
+  Bool →
   -- | The doc string to render
-  LHsDocString ->
+  LHsDocString →
   R ()
 p_hsDocString hstyle needsNewline (L l str) = do
-  goesAfterComment <- isJust <$> getLastCommentSpan
+  goesAfterComment ← isJust <$> getLastCommentSpan
   -- Make sure the Haddock is separated by a newline from other comments.
   when goesAfterComment newline
-  forM_ (zip (splitDocString str) (True : repeat False)) $ \(x, isFirst) -> do
+  forM_ (zip (splitDocString str) (True : repeat False)) $ \(x, isFirst) → do
     if isFirst
       then case hstyle of
-        Pipe -> txt "-- |" >> space
-        Caret -> txt "-- ^" >> space
-        Asterisk n -> txt ("-- " <> T.replicate n "*") >> space
-        Named name -> p_hsDocName name
+        Pipe → txt "-- |" >> space
+        Caret → txt "-- ^" >> space
+        Asterisk n → txt ("-- " <> T.replicate n "*") >> space
+        Named name → p_hsDocName name
       else newline >> txt "--" >> space
     unless (T.null x) (txt x)
   when needsNewline newline
   case l of
-    UnhelpfulSpan _ ->
+    UnhelpfulSpan _ →
       -- It's often the case that the comment itself doesn't have a span
       -- attached to it and instead its location can be obtained from
       -- nearest enclosing span.
       getEnclosingSpan (const True) >>= mapM_ (setLastCommentSpan (Just hstyle))
-    RealSrcSpan spn -> setLastCommentSpan (Just hstyle) spn
+    RealSrcSpan spn → setLastCommentSpan (Just hstyle) spn
 
 -- | Print anchor of named doc section.
-p_hsDocName :: String -> R ()
+p_hsDocName ∷ String → R ()
 p_hsDocName name = txt ("-- $" <> T.pack name)

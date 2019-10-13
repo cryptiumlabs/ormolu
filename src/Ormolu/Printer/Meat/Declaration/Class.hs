@@ -1,6 +1,6 @@
-{-# LANGUAGE LambdaCase        #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE RecordWildCards #-}
 
 -- | Rendering of type class declarations.
 module Ormolu.Printer.Meat.Declaration.Class
@@ -8,31 +8,31 @@ module Ormolu.Printer.Meat.Declaration.Class
   )
 where
 
-import           Class
-import           Control.Arrow
-import           Control.Monad
-import           Data.Foldable
-import           Data.List                       (sortBy)
-import           Data.Ord                        (comparing)
-import           GHC
-import           Ormolu.Printer.Combinators
-import           Ormolu.Printer.Meat.Common
+import Class
+import Control.Arrow
+import Control.Monad
+import Data.Foldable
+import Data.List (sortBy)
+import Data.Ord (comparing)
+import GHC
+import Ormolu.Printer.Combinators
+import Ormolu.Printer.Meat.Common
 import {-# SOURCE #-} Ormolu.Printer.Meat.Declaration
-import           Ormolu.Printer.Meat.Type
-import           Ormolu.Utils
-import           RdrName                         (RdrName (..))
+import Ormolu.Printer.Meat.Type
+import Ormolu.Utils
+import RdrName (RdrName (..))
 
-p_classDecl ::
-  LHsContext GhcPs ->
-  Located RdrName ->
-  LHsQTyVars GhcPs ->
-  LexicalFixity ->
-  [Located (FunDep (Located RdrName))] ->
-  [LSig GhcPs] ->
-  LHsBinds GhcPs ->
-  [LFamilyDecl GhcPs] ->
-  [LTyFamDefltEqn GhcPs] ->
-  [LDocDecl] ->
+p_classDecl ∷
+  LHsContext GhcPs →
+  Located RdrName →
+  LHsQTyVars GhcPs →
+  LexicalFixity →
+  [Located (FunDep (Located RdrName))] →
+  [LSig GhcPs] →
+  LHsBinds GhcPs →
+  [LFamilyDecl GhcPs] →
+  [LTyFamDefltEqn GhcPs] →
+  [LDocDecl] →
   R ()
 p_classDecl ctx name tvars fixity fdeps csigs cdefs cats catdefs cdocs = do
   let HsQTvs {..} = tvars
@@ -75,21 +75,21 @@ p_classDecl ctx name tvars fixity fdeps csigs cdefs cats catdefs cdocs = do
     when (hasSeparatedDecls allDecls) breakpoint'
     inci (p_hsDecls Associated allDecls)
 
-p_classContext :: LHsContext GhcPs -> R ()
+p_classContext ∷ LHsContext GhcPs → R ()
 p_classContext ctx = unless (null (unLoc ctx)) $ do
   located ctx p_hsContext
   space
   txt "⇒"
   breakpoint
 
-p_classFundeps :: [Located (FunDep (Located RdrName))] -> R ()
+p_classFundeps ∷ [Located (FunDep (Located RdrName))] → R ()
 p_classFundeps fdeps = unless (null fdeps) $ do
   breakpoint
   txt "|"
   space
   sitcc $ sep (comma >> breakpoint) (sitcc . located' p_funDep) fdeps
 
-p_funDep :: FunDep (Located RdrName) -> R ()
+p_funDep ∷ FunDep (Located RdrName) → R ()
 p_funDep (before, after) = do
   sep space p_rdrName before
   space
@@ -100,14 +100,14 @@ p_funDep (before, after) = do
 ----------------------------------------------------------------------------
 -- Helpers
 
-defltEqnToInstDecl :: TyFamDefltEqn GhcPs -> TyFamInstDecl GhcPs
+defltEqnToInstDecl ∷ TyFamDefltEqn GhcPs → TyFamInstDecl GhcPs
 defltEqnToInstDecl FamEqn {..} = TyFamInstDecl {..}
   where
     eqn = FamEqn {feqn_pats = tyVarsToTypes feqn_pats, ..}
     tfid_eqn = HsIB {hsib_ext = NoExt, hsib_body = eqn}
 defltEqnToInstDecl XFamEqn {} = notImplemented "XFamEqn"
 
-isInfix :: LexicalFixity -> Bool
+isInfix ∷ LexicalFixity → Bool
 isInfix = \case
-  Infix -> True
-  Prefix -> False
+  Infix → True
+  Prefix → False

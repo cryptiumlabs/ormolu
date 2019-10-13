@@ -41,17 +41,17 @@ import System.IO (hGetContents, stdin)
 --       side-effects though.
 --     * Takes file name just to use it in parse error messages.
 --     * Throws 'OrmoluException'.
-ormolu ::
-  MonadIO m =>
+ormolu ∷
+  MonadIO m ⇒
   -- | Ormolu configuration
-  Config ->
+  Config →
   -- | Location of source file
-  FilePath ->
+  FilePath →
   -- | Input to format
-  String ->
+  String →
   m Text
 ormolu cfg path str = do
-  (ws, result0) <-
+  (ws, result0) ←
     parseModule' cfg OrmoluParsingFailed path str
   when (cfgDebug cfg) $ do
     traceM "warnings:\n"
@@ -67,7 +67,7 @@ ormolu cfg path str = do
     let pathRendered = path ++ "<rendered>"
     -- Parse the result of pretty-printing again and make sure that AST
     -- is the same as AST of original snippet module span positions.
-    (_, result1) <-
+    (_, result1) ←
       parseModule'
         cfg
         OrmoluOutputParsingFailed
@@ -75,15 +75,15 @@ ormolu cfg path str = do
         (T.unpack txt)
     unless (cfgUnsafe cfg) $
       case diffParseResult result0 result1 of
-        Same -> return ()
-        Different ss -> liftIO $ throwIO (OrmoluASTDiffers path ss)
+        Same → return ()
+        Different ss → liftIO $ throwIO (OrmoluASTDiffers path ss)
     -- Try re-formatting the formatted result to check if we get exactly
     -- the same output.
     when (cfgCheckIdempotency cfg) $
       let txt2 = printModule result1
        in case diffText txt txt2 pathRendered of
-            Nothing -> return ()
-            Just (loc, l, r) ->
+            Nothing → return ()
+            Just (loc, l, r) →
               liftIO $
                 throwIO (OrmoluNonIdempotentOutput loc l r)
   return txt
@@ -93,12 +93,12 @@ ormolu cfg path str = do
 --
 -- > ormoluFile cfg path =
 -- >   liftIO (readFile path) >>= ormolu cfg path
-ormoluFile ::
-  MonadIO m =>
+ormoluFile ∷
+  MonadIO m ⇒
   -- | Ormolu configuration
-  Config ->
+  Config →
   -- | Location of source file
-  FilePath ->
+  FilePath →
   -- | Resulting rendition
   m Text
 ormoluFile cfg path =
@@ -108,10 +108,10 @@ ormoluFile cfg path =
 --
 -- > ormoluStdin cfg =
 -- >   liftIO (hGetContents stdin) >>= ormolu cfg "<stdin>"
-ormoluStdin ::
-  MonadIO m =>
+ormoluStdin ∷
+  MonadIO m ⇒
   -- | Ormolu configuration
-  Config ->
+  Config →
   -- | Resulting rendition
   m Text
 ormoluStdin cfg =
@@ -121,25 +121,25 @@ ormoluStdin cfg =
 -- Helpers
 
 -- | A wrapper around 'parseModule'.
-parseModule' ::
-  MonadIO m =>
+parseModule' ∷
+  MonadIO m ⇒
   -- | Ormolu configuration
-  Config ->
+  Config →
   -- | How to obtain 'OrmoluException' to throw when parsing fails
-  (GHC.SrcSpan -> String -> OrmoluException) ->
+  (GHC.SrcSpan → String → OrmoluException) →
   -- | File name to use in errors
-  FilePath ->
+  FilePath →
   -- | Actual input for the parser
-  String ->
+  String →
   m ([GHC.Warn], ParseResult)
 parseModule' cfg mkException path str = do
-  (ws, r) <- parseModule cfg path str
+  (ws, r) ← parseModule cfg path str
   case r of
-    Left (spn, err) -> liftIO $ throwIO (mkException spn err)
-    Right x -> return (ws, x)
+    Left (spn, err) → liftIO $ throwIO (mkException spn err)
+    Right x → return (ws, x)
 
 -- | Pretty-print a 'GHC.Warn'.
-showWarn :: GHC.Warn -> String
+showWarn ∷ GHC.Warn → String
 showWarn (GHC.Warn reason l) =
   unlines
     [ showOutputable reason,
