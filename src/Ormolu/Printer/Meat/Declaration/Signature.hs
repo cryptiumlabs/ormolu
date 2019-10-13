@@ -1,6 +1,6 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 -- | Type signature declarations.
 module Ormolu.Printer.Meat.Declaration.Signature
@@ -10,15 +10,15 @@ module Ormolu.Printer.Meat.Declaration.Signature
   )
 where
 
-import BasicTypes
-import BooleanFormula
-import Control.Monad
-import Data.Bool (bool)
-import GHC
-import Ormolu.Printer.Combinators
-import Ormolu.Printer.Meat.Common
-import Ormolu.Printer.Meat.Type
-import Ormolu.Utils
+import           BasicTypes
+import           BooleanFormula
+import           Control.Monad
+import           Data.Bool                  (bool)
+import           GHC
+import           Ormolu.Printer.Combinators
+import           Ormolu.Printer.Meat.Common
+import           Ormolu.Printer.Meat.Type
+import           Ormolu.Utils
 
 p_sigDecl :: Sig GhcPs -> R ()
 p_sigDecl = \case
@@ -59,7 +59,7 @@ p_typeAscription ::
 p_typeAscription HsWC {..} = do
   space
   inci $ do
-    txt "::"
+    txt "∷"
     let t = hsib_body hswc_body
     if hasDocStrings (unLoc t)
       then newline
@@ -139,7 +139,7 @@ p_specSig name ts InlinePragma {..} = pragmaBraces $ do
   space
   p_rdrName name
   space
-  txt "::"
+  txt "∷"
   breakpoint
   inci $ sep (comma >> breakpoint) (located' p_hsType . hsib_body) ts
 
@@ -208,7 +208,7 @@ p_completeSig cs' mty =
       sitcc $ sep (comma >> breakpoint) p_rdrName cs
       forM_ mty $ \ty -> do
         space
-        txt "::"
+        txt "∷"
         breakpoint
         inci (p_rdrName ty)
 

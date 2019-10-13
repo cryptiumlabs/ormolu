@@ -1,19 +1,19 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 module Ormolu.Printer.Meat.Declaration.Rule
   ( p_ruleDecls,
   )
 where
 
-import BasicTypes
-import GHC
-import Ormolu.Printer.Combinators
-import Ormolu.Printer.Meat.Common
-import Ormolu.Printer.Meat.Declaration.Signature
-import Ormolu.Printer.Meat.Declaration.Value
-import Ormolu.Utils
+import           BasicTypes
+import           GHC
+import           Ormolu.Printer.Combinators
+import           Ormolu.Printer.Meat.Common
+import           Ormolu.Printer.Meat.Declaration.Signature
+import           Ormolu.Printer.Meat.Declaration.Value
+import           Ormolu.Utils
 
 p_ruleDecls :: RuleDecls GhcPs -> R ()
 p_ruleDecls = \case
@@ -47,7 +47,7 @@ p_ruleBndrs :: [LRuleBndr GhcPs] -> R ()
 p_ruleBndrs [] = return ()
 p_ruleBndrs bndrs =
   switchLayout (getLoc <$> bndrs) $ do
-    txt "forall"
+    txt "∀"
     breakpoint
     inci $ do
       sitcc $ sep breakpoint (sitcc . located' p_ruleBndr) bndrs

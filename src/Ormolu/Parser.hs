@@ -203,6 +203,7 @@ setExts flags = foldl' GHC.xopt_set flags exts
   where exts = [
           OverloadedStrings,
           RankNTypes,
+          ExplicitForAll,
           LambdaCase,
           GADTs,
           ScopedTypeVariables,

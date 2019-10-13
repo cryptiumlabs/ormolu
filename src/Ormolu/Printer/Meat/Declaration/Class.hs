@@ -1,6 +1,6 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 -- | Rendering of type class declarations.
 module Ormolu.Printer.Meat.Declaration.Class
@@ -8,19 +8,19 @@ module Ormolu.Printer.Meat.Declaration.Class
   )
 where
 
-import Class
-import Control.Arrow
-import Control.Monad
-import Data.Foldable
-import Data.List (sortBy)
-import Data.Ord (comparing)
-import GHC
-import Ormolu.Printer.Combinators
-import Ormolu.Printer.Meat.Common
+import           Class
+import           Control.Arrow
+import           Control.Monad
+import           Data.Foldable
+import           Data.List                       (sortBy)
+import           Data.Ord                        (comparing)
+import           GHC
+import           Ormolu.Printer.Combinators
+import           Ormolu.Printer.Meat.Common
 import {-# SOURCE #-} Ormolu.Printer.Meat.Declaration
-import Ormolu.Printer.Meat.Type
-import Ormolu.Utils
-import RdrName (RdrName (..))
+import           Ormolu.Printer.Meat.Type
+import           Ormolu.Utils
+import           RdrName                         (RdrName (..))
 
 p_classDecl ::
   LHsContext GhcPs ->
@@ -79,7 +79,7 @@ p_classContext :: LHsContext GhcPs -> R ()
 p_classContext ctx = unless (null (unLoc ctx)) $ do
   located ctx p_hsContext
   space
-  txt "=>"
+  txt "⇒"
   breakpoint
 
 p_classFundeps :: [Located (FunDep (Located RdrName))] -> R ()
@@ -93,7 +93,7 @@ p_funDep :: FunDep (Located RdrName) -> R ()
 p_funDep (before, after) = do
   sep space p_rdrName before
   space
-  txt "->"
+  txt "→"
   space
   sep space p_rdrName after
 

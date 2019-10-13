@@ -1,6 +1,6 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 -- | Renedring of data type declarations.
 module Ormolu.Printer.Meat.Declaration.Data
@@ -8,16 +8,16 @@ module Ormolu.Printer.Meat.Declaration.Data
   )
 where
 
-import Control.Monad
-import Data.Maybe (isJust)
-import Data.Maybe (maybeToList)
-import GHC
-import Ormolu.Printer.Combinators
-import Ormolu.Printer.Meat.Common
-import Ormolu.Printer.Meat.Type
-import Ormolu.Utils
-import RdrName (RdrName (..))
-import SrcLoc (Located)
+import           Control.Monad
+import           Data.Maybe                 (isJust)
+import           Data.Maybe                 (maybeToList)
+import           GHC
+import           Ormolu.Printer.Combinators
+import           Ormolu.Printer.Meat.Common
+import           Ormolu.Printer.Meat.Type
+import           Ormolu.Utils
+import           RdrName                    (RdrName (..))
+import           SrcLoc                     (Located)
 
 p_dataDecl ::
   -- | Whether to format as data family
@@ -33,11 +33,11 @@ p_dataDecl ::
   R ()
 p_dataDecl style name tpats fixity HsDataDefn {..} = do
   txt $ case dd_ND of
-    NewType -> "newtype"
+    NewType  -> "newtype"
     DataType -> "data"
   txt $ case style of
     Associated -> mempty
-    Free -> " instance"
+    Free       -> " instance"
   switchLayout (getLoc name : fmap getLoc tpats) $ do
     breakpoint
     inci $
@@ -50,7 +50,7 @@ p_dataDecl style name tpats fixity HsDataDefn {..} = do
     Nothing -> return ()
     Just k -> do
       space
-      txt "::"
+      txt "∷"
       space
       located k p_hsType
   let gadt = isJust dd_kindSig || any (isGadt . unLoc) dd_cons
@@ -98,7 +98,7 @@ p_conDecl = \case
             sitcc $ sep (comma >> breakpoint) p_rdrName cs
       space
       inci $ do
-        txt "::"
+        txt "∷"
         let interArgBreak =
               if hasDocStrings (unLoc con_res_ty)
                 then newline
@@ -112,13 +112,13 @@ p_conDecl = \case
             sep breakpoint (located' p_hsType) xs
             unless (null xs) $ do
               space
-              txt "->"
+              txt "→"
               breakpoint
           RecCon l -> do
             located l p_conDeclFields
             unless (null $ unLoc l) $ do
               space
-              txt "->"
+              txt "→"
               breakpoint
           InfixCon _ _ -> notImplemented "InfixCon"
         p_hsType (unLoc con_res_ty)
@@ -171,7 +171,7 @@ p_forallBndrs ::
 p_forallBndrs = \case
   [] -> return ()
   bndrs -> do
-    txt "forall"
+    txt "∀"
     space
     sep space (located' p_hsTyVarBndr) bndrs
     txt "."
@@ -184,7 +184,7 @@ p_lhsContext = \case
   ctx -> do
     located ctx p_hsContext
     space
-    txt "=>"
+    txt "⇒"
     breakpoint
 
 isGadt :: ConDecl GhcPs -> Bool

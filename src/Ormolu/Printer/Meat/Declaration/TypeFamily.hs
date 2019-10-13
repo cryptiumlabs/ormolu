@@ -1,6 +1,6 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 -- | Rendering of data\/type families.
 module Ormolu.Printer.Meat.Declaration.TypeFamily
@@ -9,25 +9,25 @@ module Ormolu.Printer.Meat.Declaration.TypeFamily
   )
 where
 
-import BasicTypes (LexicalFixity (..))
-import Control.Monad
-import Data.Maybe (isJust, isNothing)
-import GHC
-import Ormolu.Printer.Combinators
-import Ormolu.Printer.Meat.Common
-import Ormolu.Printer.Meat.Type
-import Ormolu.Utils
-import SrcLoc (GenLocated (..), Located)
+import           BasicTypes                 (LexicalFixity (..))
+import           Control.Monad
+import           Data.Maybe                 (isJust, isNothing)
+import           GHC
+import           Ormolu.Printer.Combinators
+import           Ormolu.Printer.Meat.Common
+import           Ormolu.Printer.Meat.Type
+import           Ormolu.Utils
+import           SrcLoc                     (GenLocated (..), Located)
 
 p_famDecl :: FamilyStyle -> FamilyDecl GhcPs -> R ()
 p_famDecl style FamilyDecl {..} = do
   mmeqs <- case fdInfo of
-    DataFamily -> Nothing <$ txt "data"
-    OpenTypeFamily -> Nothing <$ txt "type"
+    DataFamily           -> Nothing <$ txt "data"
+    OpenTypeFamily       -> Nothing <$ txt "type"
     ClosedTypeFamily eqs -> Just eqs <$ txt "type"
   txt $ case style of
     Associated -> mempty
-    Free -> " family"
+    Free       -> " family"
   let HsQTvs {..} = fdTyVars
   breakpoint
   inci $ do
@@ -67,11 +67,11 @@ p_familyResultSigL injAnn l =
     L _ a -> case a of
       NoSig NoExt -> Nothing
       KindSig NoExt k -> Just $ do
-        if injAnn then txt "=" else txt "::"
+        if injAnn then txt "=" else txt "∷"
         breakpoint
         located k p_hsType
       TyVarSig NoExt bndr -> Just $ do
-        if injAnn then txt "=" else txt "::"
+        if injAnn then txt "=" else txt "∷"
         breakpoint
         located bndr p_hsTyVarBndr
       XFamilyResultSig NoExt ->
@@ -83,7 +83,7 @@ p_injectivityAnn (InjectivityAnn a bs) = do
   space
   p_rdrName a
   space
-  txt "->"
+  txt "→"
   space
   sep space p_rdrName bs
 
