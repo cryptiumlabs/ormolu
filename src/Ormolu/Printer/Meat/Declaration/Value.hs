@@ -374,7 +374,7 @@ p_stmt' placer render = \case
   BindStmt NoExt l f _ _ -> do
     located l p_pat
     space
-    txt "<-"
+    txt "←"
     let placement =
           case f of
             L l' x ->
@@ -783,7 +783,7 @@ p_patSynBind PSB {..} = do
         space
         case psb_dir of
           Unidirectional -> do
-            txt "<-"
+            txt "←"
             breakpoint
             located psb_def p_pat
           ImplicitBidirectional -> do
@@ -791,7 +791,7 @@ p_patSynBind PSB {..} = do
             breakpoint
             located psb_def p_pat
           ExplicitBidirectional mgroup -> do
-            txt "<-"
+            txt "←"
             breakpoint
             located psb_def p_pat
             newline
