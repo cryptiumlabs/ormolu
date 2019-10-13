@@ -28,7 +28,7 @@ p_hsType t = p_hsType' (hasDocStrings t) t
 p_hsType' :: Bool -> HsType GhcPs -> R ()
 p_hsType' multilineArgs = \case
   HsForAllTy NoExt bndrs t -> do
-    txt "forall "
+    txt "∀ "
     sep space (located' p_hsTyVarBndr) bndrs
     txt "."
     interArgBreak
