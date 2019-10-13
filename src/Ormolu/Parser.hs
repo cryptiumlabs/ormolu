@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards    #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -9,28 +9,28 @@ module Ormolu.Parser
   )
 where
 
-import qualified CmdLineParser as GHC
-import Control.Exception
-import Control.Monad
-import Control.Monad.IO.Class
-import Data.List ((\\), foldl', isPrefixOf)
-import Data.Maybe (catMaybes)
-import qualified DynFlags as GHC
-import qualified FastString as GHC
-import GHC hiding (IE, parseModule, parser)
-import GHC.LanguageExtensions.Type (Extension (..))
-import GHC.Paths (libdir)
-import qualified HeaderInfo as GHC
-import qualified Lexer as GHC
-import Ormolu.Config
-import Ormolu.Exception
-import Ormolu.Parser.Anns
-import Ormolu.Parser.CommentStream
-import Ormolu.Parser.Result
-import qualified Outputable as GHC
-import qualified Parser as GHC
-import qualified SrcLoc as GHC
-import qualified StringBuffer as GHC
+import qualified CmdLineParser               as GHC
+import           Control.Exception
+import           Control.Monad
+import           Control.Monad.IO.Class
+import           Data.List                   (foldl', isPrefixOf, (\\))
+import           Data.Maybe                  (catMaybes)
+import qualified DynFlags                    as GHC
+import qualified FastString                  as GHC
+import           GHC                         hiding (IE, parseModule, parser)
+import           GHC.LanguageExtensions.Type (Extension (..))
+import           GHC.Paths                   (libdir)
+import qualified HeaderInfo                  as GHC
+import qualified Lexer                       as GHC
+import           Ormolu.Config
+import           Ormolu.Exception
+import           Ormolu.Parser.Anns
+import           Ormolu.Parser.CommentStream
+import           Ormolu.Parser.Result
+import qualified Outputable                  as GHC
+import qualified Parser                      as GHC
+import qualified SrcLoc                      as GHC
+import qualified StringBuffer                as GHC
 
 -- | Parse a complete module from string.
 parseModule ::
@@ -120,7 +120,7 @@ initDynFlagsPure fp input = do
   -- I was told we could get away with using the 'unsafeGlobalDynFlags'. as
   -- long as 'parseDynamicFilePragma' is impure there seems to be no reason
   -- to use it.
-  dflags0 <- setDefaultExts <$> GHC.getSessionDynFlags
+  dflags0 <- setExts <$> GHC.getSessionDynFlags
   let tokens = GHC.getOptions dflags0 (GHC.stringToStringBuffer input) fp
   (dflags1, _, _) <- GHC.parseDynamicFilePragma dflags0 tokens
   -- Turn this on last to avoid T10942
@@ -197,5 +197,30 @@ setDefaultExts flags = foldl' GHC.xopt_set flags autoExts
   where
     autoExts = allExts \\ manualExts
     allExts = [minBound .. maxBound]
+
+setExts :: DynFlags -> DynFlags
+setExts flags = foldl' GHC.xopt_set flags exts
+  where exts = [
+          OverloadedStrings,
+          RankNTypes,
+          LambdaCase,
+          GADTs,
+          ScopedTypeVariables,
+          DeriveGeneric,
+          DerivingStrategies,
+          FlexibleContexts,
+          FlexibleInstances,
+          DataKinds,
+          GeneralizedNewtypeDeriving,
+          DefaultSignatures,
+          QuasiQuotes,
+          TypeOperators,
+          MultiParamTypeClasses,
+          MultiWayIf,
+          TypeInType,
+          DerivingVia,
+          TypeApplications,
+          UnicodeSyntax
+          ]
 
 deriving instance Bounded Extension
