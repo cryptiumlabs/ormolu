@@ -459,7 +459,7 @@ p_hsLocalBinds = \case
             (srcSpanStart . getLoc)
         items =
           (Left <$> bagToList bag) ++ (Right <$> lsigs)
-        p_item (Left x) = located x p_valDecl
+        p_item (Left x) = located x p_valDecl >> if length items > 2 then newline else pure ()
         p_item (Right x) = located x p_sigDecl
         -- Assigns 'False' to the last element, 'True' to the rest.
         markInit ∷ [a] → [(Bool, a)]
